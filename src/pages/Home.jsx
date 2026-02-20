@@ -1,8 +1,8 @@
-import React, { useRef } from 'react';
-import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import React, { useRef, useState } from 'react';
+import { motion, useScroll, useTransform, useSpring, AnimatePresence } from 'framer-motion';
 import { 
-  Camera, Zap, Star, ArrowUpRight, Aperture, 
-  Layers, Radio, Instagram, Mail, Phone, Video
+  Camera, Star, ArrowUpRight, Aperture, 
+  Radio, Instagram, Mail, Phone, Video, X 
 } from 'lucide-react';
 
 const GREEN = "#10a37f";
@@ -21,9 +21,10 @@ const StackCard = ({ children, color, textColor, id, stickyTop = "top-0" }) => (
 
 export default function GravityStackGosh() {
   const containerRef = useRef(null);
-  
-  // Ref for horizontal scroll tracking
   const horizontalRef = useRef(null);
+  
+  // State for the enlarged gallery image
+  const [selectedId, setSelectedId] = useState(null);
 
   // Global Scroll progress
   const { scrollYProgress } = useScroll();
@@ -110,7 +111,7 @@ export default function GravityStackGosh() {
         </div>
       </StackCard>
 
-      {/* 3. THE PORTFOLIO (Vertical-to-Horizontal Scroll Lock) */}
+      {/* 3. THE PORTFOLIO (Vertical-to-Horizontal) */}
       <div ref={horizontalRef} id="portfolio" className="relative h-[300vh] bg-white">
         <div className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-hidden border-t-2 md:border-t-4 border-black/10">
           <div className="w-full max-w-7xl mx-auto px-6 md:px-10 mb-8 md:mb-12 flex justify-between items-end">
@@ -120,21 +121,64 @@ export default function GravityStackGosh() {
 
           <motion.div style={{ x: xMoveSticky }} className="flex gap-4 md:gap-12 px-6 md:px-20">
             {[1, 2, 3, 4, 5, 6].map(i => (
-              <div 
+              <motion.div 
+                layoutId={`card-${i}`}
                 key={i} 
-                className="group relative min-w-[85vw] md:min-w-[600px] aspect-[16/10] md:aspect-video bg-[#10a37f] border-4 md:border-[10px] border-black shadow-[8px_8px_0px_#000] overflow-hidden"
+                onClick={() => setSelectedId(i)}
+                className="group relative min-w-[85vw] md:min-w-[600px] aspect-[16/10] md:aspect-video bg-[#10a37f] border-4 md:border-[10px] border-black shadow-[8px_8px_0px_#000] overflow-hidden cursor-zoom-in"
               >
-                <img 
+                <motion.img 
+                  layoutId={`img-${i}`}
                   src={`https://picsum.photos/1200/800?sig=${i+500}`} 
                   className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
                   alt="Work"
                 />
-              </div>
+              </motion.div>
             ))}
-            <div className="min-w-[20vw]" /> {/* End spacer */}
+            <div className="min-w-[20vw]" />
           </motion.div>
         </div>
       </div>
+
+      {/* --- ENLARGED IMAGE OVERLAY (LIGHTBOX) --- */}
+      <AnimatePresence>
+        {selectedId && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-10">
+            {/* Dark Backdrop */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedId(null)}
+              className="absolute inset-0 bg-black/95 backdrop-blur-md cursor-zoom-out"
+            />
+
+            {/* Enlarged Card Container */}
+            <motion.div 
+              layoutId={`card-${selectedId}`}
+              className="relative w-full max-w-6xl aspect-video bg-black border-4 md:border-[12px] border-white shadow-2xl z-10 overflow-hidden"
+            >
+              <motion.img 
+                layoutId={`img-${selectedId}`}
+                src={`https://picsum.photos/1200/800?sig=${selectedId+500}`} 
+                className="w-full h-full object-cover"
+              />
+              
+              {/* Close Button UI */}
+              <button 
+                onClick={() => setSelectedId(null)}
+                className="absolute top-4 right-4 bg-[#f8e71c] text-black p-3 md:p-5 rounded-full hover:rotate-90 hover:scale-110 transition-all duration-300 shadow-xl"
+              >
+                <X size={28} strokeWidth={4} />
+              </button>
+
+              <div className="absolute bottom-6 left-8 text-white mix-blend-difference">
+                <p className="text-2xl md:text-5xl font-black italic">PROJECT_{selectedId}</p>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* 4. ABOUT / STATS */}
       <StackCard id="about" color={GREEN} textColor="white">
