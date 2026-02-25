@@ -242,6 +242,11 @@ export default function GravityStackGosh() {
                   <Mail className="w-5 h-5" /> goshostudiosclt@gmail.com
                  </a>
                </div>
+                <div className="flex flex-col gap-2 mt-4">
+                 <a href="mailto:rainbowmediasnaps@gmail.com" className="flex items-center gap-3 text-sm md:text-xl font-mono border-b-2 border-black/10 pb-2 break-all lowercase">
+                  <Mail className="w-5 h-5" /> rainbowmediasnaps@gmail.com
+                 </a>
+               </div>
 
                <div className="mt-6 p-4 border-l-4 border-[#10a37f] bg-neutral-50">
                   <p className="flex items-start gap-2 text-sm md:text-lg normal-case font-bold leading-tight">
