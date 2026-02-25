@@ -2,7 +2,8 @@ import React, { useRef, useState } from 'react';
 import { motion, useScroll, useTransform, useSpring, AnimatePresence } from 'framer-motion';
 import { 
   Camera, Star, ArrowUpRight, Aperture, 
-  Radio, Instagram, Mail, Phone, Video, X, MapPin 
+  Radio, Instagram, Mail, Phone, Video, X, MapPin,
+  ChevronRight, ChevronLeft 
 } from 'lucide-react';
 
 const GREEN = "#10a37f";
@@ -32,6 +33,7 @@ export default function GravityStackGosh() {
   const containerRef = useRef(null);
   const horizontalRef = useRef(null);
   const [selectedImg, setSelectedImg] = useState(null);
+  const [mobileIndex, setMobileIndex] = useState(0);
 
   const { scrollYProgress } = useScroll();
   const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
@@ -42,9 +44,18 @@ export default function GravityStackGosh() {
   });
 
   const scaleVal = useTransform(smoothProgress, [0, 0.1], [1, 0.85]);
-  
-  // Refined movement for a smoother horizontal feel
   const xMoveSticky = useTransform(horizontalScrollValue, [0, 1], ["0%", "-85%"]);
+
+  // Mobile Carousel Logic
+  const nextSlide = (e) => {
+    e.stopPropagation();
+    setMobileIndex((prev) => (prev + 1) % imageUrls.length);
+  };
+
+  const prevSlide = (e) => {
+    e.stopPropagation();
+    setMobileIndex((prev) => (prev - 1 + imageUrls.length) % imageUrls.length);
+  };
 
   return (
     <div ref={containerRef} className="relative bg-black font-black uppercase leading-none selection:bg-white selection:text-black">
@@ -88,25 +99,66 @@ export default function GravityStackGosh() {
         </div>
       </StackCard>
 
-      {/* 3. THE PORTFOLIO (Enhanced Mobile Smoothness) */}
-      <div ref={horizontalRef} id="portfolio" className="relative h-[400vh] bg-white">
+      {/* 3. THE PORTFOLIO */}
+      <div ref={horizontalRef} id="portfolio" className="relative h-[120vh] md:h-[400vh] bg-white">
         <div className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-hidden border-t-2 md:border-t-4 border-black/10">
+          
           <div className="w-full max-w-7xl mx-auto px-6 md:px-10 mb-6 flex justify-between items-end">
             <h2 className="text-5xl md:text-9xl text-[#10a37f]">ARCHIVE</h2>
             <Star className="w-10 h-10 md:w-20 md:h-20" fill={YELLOW} color="#000" />
           </div>
 
-          {/* Added snap-x for mobile "flick" scrolling feel */}
+          {/* --- MOBILE CAROUSEL (< 768px) --- */}
+          <div className="block md:hidden relative px-6 w-full max-w-md mx-auto">
+            <div className="relative aspect-[2/3] w-full bg-neutral-100 border-4 border-black shadow-[8px_8px_0px_#000] overflow-hidden">
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={mobileIndex}
+                  src={imageUrls[mobileIndex]}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.2 }}
+                  className="w-full h-full object-cover"
+                  onClick={() => setSelectedImg(imageUrls[mobileIndex])}
+                />
+              </AnimatePresence>
+              
+              {/* Pagination Label */}
+              <div className="absolute top-4 left-4 bg-black text-white px-3 py-1 text-xs font-mono">
+                {mobileIndex + 1} / {imageUrls.length}
+              </div>
+
+              {/* Navigation Controls */}
+              <div className="absolute bottom-4 right-4 flex gap-2">
+                <button 
+                  onClick={prevSlide}
+                  className="bg-white border-2 border-black p-3 shadow-[4px_4px_0px_#000] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all"
+                >
+                  <ChevronLeft size={24} color="black" strokeWidth={3} />
+                </button>
+                <button 
+                  onClick={nextSlide}
+                  className="bg-[#f8e71c] border-2 border-black p-3 shadow-[4px_4px_0px_#000] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all"
+                >
+                  <ChevronRight size={24} color="black" strokeWidth={3} />
+                </button>
+              </div>
+            </div>
+            <p className="mt-4 text-center text-sm italic opacity-50 lowercase">Tap image to enlarge</p>
+          </div>
+
+          {/* --- DESKTOP HORIZONTAL SCROLL (>= 768px) --- */}
           <motion.div 
             style={{ x: xMoveSticky }} 
-            className="flex gap-4 md:gap-8 px-6 md:px-20 snap-x snap-mandatory md:snap-none"
+            className="hidden md:flex gap-8 px-20"
           >
             {imageUrls.map((url, i) => (
               <motion.div 
                 layoutId={`card-${url}`}
                 key={url} 
                 onClick={() => setSelectedImg(url)}
-                className="group relative min-w-[75vw] md:min-w-[400px] aspect-[2/3] md:aspect-[3/4] bg-neutral-100 border-4 md:border-[10px] border-black shadow-[8px_8px_0px_#000] overflow-hidden cursor-zoom-in snap-center"
+                className="group relative min-w-[400px] aspect-[3/4] bg-neutral-100 border-[10px] border-black shadow-[8px_8px_0px_#000] overflow-hidden cursor-zoom-in"
               >
                 <motion.img 
                   layoutId={`img-${url}`}
@@ -121,6 +173,7 @@ export default function GravityStackGosh() {
             ))}
             <div className="min-w-[20vw]" />
           </motion.div>
+
         </div>
       </div>
 
@@ -169,7 +222,7 @@ export default function GravityStackGosh() {
         </div>
       </StackCard>
 
-      {/* 5. CONTACT (Updated Details) */}
+      {/* 5. CONTACT */}
       <section id="contact" className="relative z-50 min-h-screen bg-white flex flex-col items-center justify-between p-6 md:p-12 border-t-[20px] border-[#f8e71c]">
         <div className="flex-1 flex flex-col items-center justify-center w-full max-w-6xl pt-20">
           <h2 className="text-[18vw] md:text-[12vw] leading-none mb-12 text-center">LET'S FILM.</h2>
@@ -187,9 +240,6 @@ export default function GravityStackGosh() {
                <div className="flex flex-col gap-2 mt-4">
                  <a href="mailto:goshostudiosclt@gmail.com" className="flex items-center gap-3 text-sm md:text-xl font-mono border-b-2 border-black/10 pb-2 break-all lowercase">
                   <Mail className="w-5 h-5" /> goshostudiosclt@gmail.com
-                 </a>
-                 <a href="mailto:rainbowmediasnaps@gmail.com" className="flex items-center gap-3 text-sm md:text-xl font-mono border-b-2 border-black/10 pb-2 break-all lowercase">
-                  <Mail className="w-5 h-5" /> rainbowmediasnaps@gmail.com
                  </a>
                </div>
 
@@ -210,7 +260,6 @@ export default function GravityStackGosh() {
         <footer className="w-full flex flex-col md:flex-row justify-between items-center border-t-4 border-[#10a37f] pt-10 mt-20 gap-8">
           <div className="text-7xl md:text-9xl text-[#10a37f]/10">GOSHO</div>
           <div className="text-xs md:text-lg italic opacity-70 text-center md:text-right">
-            <span>// Kozhikode, India</span><br/>
             <span>© 2026 // GOSHO STUDIOS</span>
           </div>
         </footer>
