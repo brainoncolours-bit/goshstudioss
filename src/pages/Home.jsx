@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { motion, useScroll, useTransform, useSpring, AnimatePresence } from 'framer-motion';
 import { 
   Camera, Star, ArrowUpRight, Aperture, 
-  Radio, Instagram, Mail, Phone, Video, X 
+  Radio, Instagram, Mail, Phone, Video, X, MapPin 
 } from 'lucide-react';
 
 const GREEN = "#10a37f";
@@ -43,19 +43,12 @@ export default function GravityStackGosh() {
 
   const scaleVal = useTransform(smoothProgress, [0, 0.1], [1, 0.85]);
   
-  // Adjusted xMove for portrait cards (they are narrower, so we can scroll further)
-  const xMoveSticky = useTransform(horizontalScrollValue, [0, 1], ["0%", "-70%"]);
-
-  const scrollTo = (id) => {
-    const element = document.getElementById(id);
-    element?.scrollIntoView({ behavior: 'smooth' });
-  };
+  // Refined movement for a smoother horizontal feel
+  const xMoveSticky = useTransform(horizontalScrollValue, [0, 1], ["0%", "-85%"]);
 
   return (
     <div ref={containerRef} className="relative bg-black font-black uppercase leading-none selection:bg-white selection:text-black">
       
-    
-
       {/* 1. HERO */}
       <StackCard id="hero" color={GREEN} textColor={YELLOW}>
         <motion.div style={{ scale: scaleVal }} className="text-center w-full">
@@ -95,7 +88,7 @@ export default function GravityStackGosh() {
         </div>
       </StackCard>
 
-      {/* 3. THE PORTFOLIO (Vertical Layout) */}
+      {/* 3. THE PORTFOLIO (Enhanced Mobile Smoothness) */}
       <div ref={horizontalRef} id="portfolio" className="relative h-[400vh] bg-white">
         <div className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-hidden border-t-2 md:border-t-4 border-black/10">
           <div className="w-full max-w-7xl mx-auto px-6 md:px-10 mb-6 flex justify-between items-end">
@@ -103,14 +96,17 @@ export default function GravityStackGosh() {
             <Star className="w-10 h-10 md:w-20 md:h-20" fill={YELLOW} color="#000" />
           </div>
 
-          <motion.div style={{ x: xMoveSticky }} className="flex gap-4 md:gap-8 px-6 md:px-20">
+          {/* Added snap-x for mobile "flick" scrolling feel */}
+          <motion.div 
+            style={{ x: xMoveSticky }} 
+            className="flex gap-4 md:gap-8 px-6 md:px-20 snap-x snap-mandatory md:snap-none"
+          >
             {imageUrls.map((url, i) => (
               <motion.div 
                 layoutId={`card-${url}`}
                 key={url} 
                 onClick={() => setSelectedImg(url)}
-                // min-w-[70vw] and aspect-[2/3] handles vertical photos beautifully
-                className="group relative min-w-[70vw] md:min-w-[400px] aspect-[2/3] md:aspect-[3/4] bg-neutral-100 border-4 md:border-[10px] border-black shadow-[8px_8px_0px_#000] overflow-hidden cursor-zoom-in"
+                className="group relative min-w-[75vw] md:min-w-[400px] aspect-[2/3] md:aspect-[3/4] bg-neutral-100 border-4 md:border-[10px] border-black shadow-[8px_8px_0px_#000] overflow-hidden cursor-zoom-in snap-center"
               >
                 <motion.img 
                   layoutId={`img-${url}`}
@@ -123,7 +119,7 @@ export default function GravityStackGosh() {
                 </div>
               </motion.div>
             ))}
-            <div className="min-w-[30vw]" />
+            <div className="min-w-[20vw]" />
           </motion.div>
         </div>
       </div>
@@ -137,11 +133,9 @@ export default function GravityStackGosh() {
               onClick={() => setSelectedImg(null)}
               className="absolute inset-0 bg-black/95 backdrop-blur-xl cursor-zoom-out"
             />
-
             <motion.div 
               layoutId={`card-${selectedImg}`}
-              // max-h-[90vh] ensures vertical images don't go off-screen
-              className="relative h-full max-h-[85vh] aspect-[2/3] md:aspect-[3/4] bg-black border-4 md:border-[12px] border-white z-10 overflow-hidden"
+              className="relative h-full max-h-[80vh] aspect-[2/3] md:aspect-[3/4] bg-black border-4 md:border-[12px] border-white z-10 overflow-hidden"
             >
               <motion.img 
                 layoutId={`img-${selectedImg}`}
@@ -175,20 +169,39 @@ export default function GravityStackGosh() {
         </div>
       </StackCard>
 
-      {/* 5. CONTACT */}
+      {/* 5. CONTACT (Updated Details) */}
       <section id="contact" className="relative z-50 min-h-screen bg-white flex flex-col items-center justify-between p-6 md:p-12 border-t-[20px] border-[#f8e71c]">
         <div className="flex-1 flex flex-col items-center justify-center w-full max-w-6xl pt-20">
           <h2 className="text-[18vw] md:text-[12vw] leading-none mb-12 text-center">LET'S FILM.</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 w-full">
             <div className="flex flex-col gap-6">
-               <a href="tel:9061664881" className="flex items-center gap-3 text-2xl md:text-4xl hover:text-[#10a37f] transition-colors font-mono uppercase">
-                <Phone className="w-6 h-6 md:w-10 md:h-10" /> 90616 64881
-               </a>
-               <a href="mailto:goshostudiosclt@gmail.com" className="flex items-center gap-3 text-sm md:text-2xl font-mono border-b-2 border-black pb-2 break-all lowercase">
-                <Mail className="w-6 h-6 md:w-10 md:h-10" /> goshostudiosclt@gmail.com
-               </a>
+               <div className="flex flex-col gap-2">
+                 <a href="tel:9061664881" className="flex items-center gap-3 text-2xl md:text-4xl hover:text-[#10a37f] transition-colors font-mono uppercase">
+                  <Phone className="w-6 h-6 md:w-8 md:h-8" /> 90616 64881
+                 </a>
+                 <a href="tel:9745744881" className="flex items-center gap-3 text-2xl md:text-4xl hover:text-[#10a37f] transition-colors font-mono uppercase">
+                  <Phone className="w-6 h-6 md:w-8 md:h-8" /> 97457 44881
+                 </a>
+               </div>
+               
+               <div className="flex flex-col gap-2 mt-4">
+                 <a href="mailto:goshostudiosclt@gmail.com" className="flex items-center gap-3 text-sm md:text-xl font-mono border-b-2 border-black/10 pb-2 break-all lowercase">
+                  <Mail className="w-5 h-5" /> goshostudiosclt@gmail.com
+                 </a>
+                 <a href="mailto:rainbowmediasnaps@gmail.com" className="flex items-center gap-3 text-sm md:text-xl font-mono border-b-2 border-black/10 pb-2 break-all lowercase">
+                  <Mail className="w-5 h-5" /> rainbowmediasnaps@gmail.com
+                 </a>
+               </div>
+
+               <div className="mt-6 p-4 border-l-4 border-[#10a37f] bg-neutral-50">
+                  <p className="flex items-start gap-2 text-sm md:text-lg normal-case font-bold leading-tight">
+                    <MapPin className="shrink-0 w-5 h-5 text-[#10a37f]" />
+                    <span>Gosho studios near nit calicut<br/>Rainbow media building Nit kerala 673601</span>
+                  </p>
+               </div>
             </div>
-            <a href="https://instagram.com/gosho_studios" target="_blank" rel="noreferrer" className="bg-[#10a37f] text-[#f8e71c] py-6 md:py-10 text-2xl border-4 border-black shadow-[8px_8px_0px_#000] active:shadow-none active:translate-x-2 active:translate-y-2 transition-all flex items-center justify-center gap-4">
+            
+            <a href="https://instagram.com/gosho_studios" target="_blank" rel="noreferrer" className="h-fit bg-[#10a37f] text-[#f8e71c] py-6 md:py-10 text-2xl border-4 border-black shadow-[8px_8px_0px_#000] active:shadow-none active:translate-x-2 active:translate-y-2 transition-all flex items-center justify-center gap-4">
               INSTAGRAM <Instagram />
             </a>
           </div>
